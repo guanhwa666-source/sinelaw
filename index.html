@@ -127,7 +127,7 @@
       );
     };
 
-    // Step 1: place triangle ABC in the coordinate plane with dynamic incorrect visual feedback.
+    // Step 1: Standard triangle fixed, incorrect selections show an extra red misplaced point.
     const Step1 = () => {
       const [bx, setBx] = useState('');
       const [by, setBy] = useState('');
@@ -136,20 +136,22 @@
       const answered = Boolean(bx && by && ax && ay);
       const correct = bx === 'a' && by === '0' && ax === 'b cos C' && ay === 'b sin C';
 
-      // Dynamic positions for B based on selection
-      let bXPos = 235; // default correct (a, 0)
-      if (bx === 'b') bXPos = 180;
-      if (bx === 'c') bXPos = 130;
-      let bYPos = 175;
-      if (by === 'a') bYPos = 100; // incorrect y for B
+      // Determine if B or A coordinates are wrong and where to show misplaced indicator points
+      const bWrong = bx !== '' && by !== '' && !(bx === 'a' && by === '0');
+      const aWrong = ax !== '' && ay !== '' && !(ax === 'b cos C' && ay === 'b sin C');
 
-      // Dynamic positions for A based on selection
-      let aXPos = 140; // default correct (b cos C)
-      if (ax === 'a cos C') aXPos = 180;
-      if (ax === 'b sin C') aXPos = 100;
-      let aYPos = 55; // default correct (b sin C)
-      if (ay === 'b cos C') aYPos = 120;
-      if (ay === 'a sin C') aYPos = 80;
+      // Map wrong B selection to alternative visual coords on SVG
+      let wrongBX = 235, wrongBY = 175;
+      if (bx === 'b') wrongBX = 180;
+      if (bx === 'c') wrongBX = 130;
+      if (by === 'a') wrongBY = 100;
+
+      // Map wrong A selection to alternative visual coords on SVG
+      let wrongAX = 140, wrongAY = 55;
+      if (ax === 'a cos C') wrongAX = 180;
+      if (ax === 'b sin C') wrongAX = 100;
+      if (ay === 'b cos C') wrongAY = 120;
+      if (ay === 'a sin C') wrongAY = 80;
 
       const bText = (bx !== '' && by !== '') ? ` (${bx}, ${by})` : '';
       const aText = (ax !== '' && ay !== '') ? ` (${ax}, ${ay})` : '';
@@ -192,7 +194,7 @@
               <p className="mt-4 text-sm text-slate-500">提示：點 A 到原點 C 的距離是 b，而 CA 與正 x 軸的夾角是 C。</p>
               {answered && (correct
                 ? <SuccessMessage>完全正確！B = (a, 0)，A = (b cos C, b sin C)。</SuccessMessage>
-                : <HintMessage>⚠️ 觀察右圖：你所選的座標讓點跑到了不合邏輯的位置，請再檢查一次定義！</HintMessage>)}
+                : <HintMessage>⚠️ 觀察右圖：紅點代表你所選的錯誤座標位置，它不在正確的三角形頂點上！</HintMessage>)}
             </div>
           </div>
 
@@ -202,14 +204,33 @@
               <defs><marker id="arrow-step1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" /></marker></defs>
               <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
-              {/* Dynamic polygon based on selected positions */}
-              <polygon points={`45,175 ${bXPos},${bYPos} ${aXPos},${aYPos}`} fill={correct ? "rgba(79,70,229,.10)" : "rgba(239,68,68,.08)"} stroke={correct ? "#4f46e5" : "#ef4444"} strokeWidth="2.5" strokeLinejoin="round" />
+              
+              {/* Standard Fixed Triangle */}
+              <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
               <circle cx="45" cy="175" r="5" fill="#f43f5e" />
-              <circle cx={bXPos} cy={bYPos} r="5" fill={correct ? '#059669' : '#ef4444'} />
-              <circle cx={aXPos} cy={aYPos} r="5" fill={correct ? '#059669' : '#ef4444'} />
+              <circle cx="235" cy="175" r="5" fill={correct ? '#059669' : '#f43f5e'} />
+              <circle cx="140" cy="55" r="5" fill={correct ? '#059669' : '#f43f5e'} />
+
+              {/* Misplaced Red Indicator Points if incorrect */}
+              {bWrong && (
+                <g>
+                  <circle cx={wrongBX} cy={wrongBY} r="6" fill="#ef4444" className="animate-pulse" />
+                  <text x={wrongBX + 8} y={wrongBY + 4} fontSize="10" fontWeight="700" fill="#ef4444">選錯的 B</text>
+                </g>
+              )}
+              {aWrong && (
+                <g>
+                  <circle cx={wrongAX} cy={wrongAY} r="6" fill="#ef4444" className="animate-pulse" />
+                  <text x={wrongAX + 8} y={wrongAY - 4} fontSize="10" fontWeight="700" fill="#ef4444">選錯的 A</text>
+                </g>
+              )}
+
               <text x="15" y="194" fontSize="11" fontWeight="700" fill="#334155">C (0, 0)</text>
-              <text x={bXPos - 15} y={bYPos + 20} fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
-              <text x={aXPos - 25} y={aYPos - 12} fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
+              <text x="210" y="195" fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
+              <text x="75" y="40" fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
+              <text x="137" y="165" fontSize="14" fontWeight="700" fill="#4f46e5">a</text>
+              <text x="74" y="107" fontSize="14" fontWeight="700" fill="#4f46e5">b</text>
+              <text x="190" y="107" fontSize="14" fontWeight="700" fill="#db2777">c</text>
               <path d="M 72 175 A 27 27 0 0 0 66 158" fill="none" stroke="#f59e0b" strokeWidth="2" />
               <text x="78" y="164" fontSize="12" fontWeight="700" fill="#d97706">∠C</text>
             </svg>
@@ -323,7 +344,7 @@
       );
     };
 
-    // Step 4: Interactive Formula Derivation for cos A with final formula box added
+    // Step 4: Interactive Formula Derivation for cos A
     const Step4 = () => {
       const [step2Choice, setStep2Choice] = useState('');
       const [step3Choice, setStep3Choice] = useState('');
@@ -339,7 +360,6 @@
           </p>
 
           <div className="space-y-6">
-            {/* Part 1: Side transformation */}
             <div className="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
               <h3 className="mb-3 text-lg font-bold text-indigo-900">1. 邊長公式的變形（求任一邊）</h3>
               <p className="mb-4 text-slate-600">若想求其他邊（如邊 b 或邊 a），只要對調對應的字母與夾角即可：</p>
@@ -356,13 +376,11 @@
               </div>
             </div>
 
-            {/* Part 2: Interactive Angle Derivation */}
             <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
               <h3 className="mb-3 text-lg font-bold text-pink-900">2. 角度公式的互動推導（由三邊求角 cos A）</h3>
               <p className="mb-4 text-slate-600">請試著跟著下方步驟，一步步推導出 <span className="font-mono text-pink-600 font-bold">cos A</span>：</p>
               
               <div className="space-y-5 font-mono text-sm md:text-base text-slate-700 bg-slate-50 p-5 rounded-xl border border-slate-200">
-                {/* Q1 */}
                 <div className="flex items-start gap-3">
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-sans font-bold flex items-center justify-center mt-0.5">①</span>
                   <div>
@@ -371,7 +389,6 @@
                   </div>
                 </div>
 
-                {/* Q2 */}
                 <div className="flex items-start gap-3 border-t border-slate-200 pt-4">
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-sans font-bold flex items-center justify-center mt-0.5">②</span>
                   <div className="w-full">
@@ -391,7 +408,6 @@
                   </div>
                 </div>
 
-                {/* Q3 */}
                 {step2Correct && (
                   <div className="flex items-start gap-3 border-t border-slate-200 pt-4 animate-fade-in">
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-sans font-bold flex items-center justify-center mt-0.5">③</span>
