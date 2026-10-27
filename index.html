@@ -71,10 +71,8 @@
       </h2>
     );
 
-    // Step 0: Initial thinking / engagement prompt
+    // Step 0: Pure thinking prompt without interactive buttons
     const Step0 = () => {
-      const [choice, setChoice] = useState(null);
-
       return (
         <div className="mx-auto max-w-4xl animate-fade-in py-2">
           <StepHeading number="0">思考引導</StepHeading>
@@ -84,26 +82,12 @@
               <p className="text-lg font-bold text-slate-800 mb-3">
                 如果我們已知 ΔABC 的兩邊長 a、b，以及其夾角 ∠C：
               </p>
-              <p className="text-base text-slate-600 mb-6">
-                你覺得有沒有辦法求出第三邊 c 的長度呢？
+              <p className="text-base leading-7 text-indigo-700 font-bold mb-4">
+                思考問題：你會用什麼方法求出第三邊 c 的長度呢？
               </p>
-              
-              <div className="flex flex-wrap gap-4">
-                <button
-                  type="button"
-                  onClick={() => setChoice('yes')}
-                  className={`flex-1 px-5 py-3 rounded-xl font-bold text-base transition border-2 ${choice === 'yes' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-400 hover:bg-emerald-50'}`}
-                >
-                  有辦法！
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChoice('no')}
-                  className={`flex-1 px-5 py-3 rounded-xl font-bold text-base transition border-2 ${choice === 'no' ? 'bg-amber-600 text-white border-amber-600 shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-amber-400 hover:bg-amber-50'}`}
-                >
-                  不知道 / 沒辦法
-                </button>
-              </div>
+              <p className="text-sm text-slate-500 leading-6 border-t border-slate-100 pt-3">
+                💡 當夾角不是直角（無法直接套用畢氏定理）時，我們可以透過建立坐標系與兩點距離公式來推導出「餘弦定理」。
+              </p>
             </div>
 
             <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -125,18 +109,9 @@
             </div>
           </div>
 
-          {choice === 'yes' && (
-            <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 animate-fade-in text-center font-bold text-lg">
-              你會用什麼方法？
-            </div>
-          )}
-
-          {choice === 'no' && (
-            <div className="p-5 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 animate-fade-in text-center">
-              <p className="font-bold text-lg mb-1">沒關係，這正是我們今天要探索的目標！</p>
-              <p>當角度不是直角（無法直接用畢氏定理）時，我們需要用到「餘弦定理」。讓我們透過接下來的步驟來找出答案吧！</p>
-            </div>
-          )}
+          <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 text-center font-medium">
+            請點擊下方「下一步」，讓我們一起開始建立坐標系推導吧！
+          </div>
         </div>
       );
     };
@@ -487,7 +462,7 @@
       );
     };
 
-    // Step 5: Repositioned "A = ?" label clearly in the center of Angle A
+    // Step 5: Exercises
     const Step5 = () => {
       const [ex1Ans, setEx1Ans] = useState('');
       const [ex2Ans, setEx2Ans] = useState('');
@@ -582,7 +557,7 @@
               </div>
             </section>
 
-            {/* Exercise B: Repositioned "A = ?" label clearly in the open area of Angle A */}
+            {/* Exercise B */}
             <section className={`rounded-2xl border-2 p-5 transition-all md:p-6 ${ex2Correct ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white shadow-sm'}`} aria-labelledby="exercise-b-title">
               <h3 id="exercise-b-title" className="mb-4 flex items-center text-lg font-bold text-slate-800">
                 <span className="mr-3 flex h-7 w-7 items-center justify-center rounded-md bg-pink-500 text-sm text-white">B</span>
