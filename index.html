@@ -56,6 +56,56 @@
       </h2>
     );
 
+    // Step 0: Initial thinking / engagement prompt
+    const Step0 = () => {
+      const [choice, setChoice] = useState(null);
+
+      return (
+        <div className="mx-auto max-w-3xl animate-fade-in text-center py-6">
+          <StepHeading number="0">思考引導</StepHeading>
+          <div className="mb-8 rounded-2xl border-2 border-indigo-100 bg-white p-8 shadow-sm text-left">
+            <p className="text-xl font-bold text-slate-800 mb-4 text-center">
+              如果我們已知 $\triangle ABC$ 的兩邊長 <span className="text-indigo-600">a</span>、<span className="text-indigo-600">b</span>，以及其夾角 <span className="text-amber-600">$\angle C$</span>：
+            </p>
+            <p className="text-lg text-slate-600 mb-8 text-center">
+              你覺得有沒有辦法求出第三邊 <span className="text-pink-600 font-bold">c</span> 的長度呢？
+            </p>
+            
+            <div className="flex justify-center gap-6">
+              <button
+                type="button"
+                onClick={() => setChoice('yes')}
+                className={`px-8 py-4 rounded-xl font-bold text-lg transition border-2 ${choice === 'yes' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md scale-105' : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-400 hover:bg-emerald-50'}`}
+              >
+                有辦法！
+              </button>
+              <button
+                type="button"
+                onClick={() => setChoice('no')}
+                className={`px-8 py-4 rounded-xl font-bold text-lg transition border-2 ${choice === 'no' ? 'bg-amber-600 text-white border-amber-600 shadow-md scale-105' : 'bg-white text-slate-700 border-slate-200 hover:border-amber-400 hover:bg-amber-50'}`}
+              >
+                不知道 / 沒辦法
+              </button>
+            </div>
+
+            {choice === 'yes' && (
+              <div className="mt-8 p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 animate-fade-in text-center">
+                <p className="font-bold text-lg mb-1">太棒了！</p>
+                <p>沒錯，我們確實可以透過坐標系與距離公式把它推導出來。接下來就讓我們一起一步步探索！</p>
+              </div>
+            )}
+
+            {choice === 'no' && (
+              <div className="mt-8 p-5 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 animate-fade-in text-center">
+                <p className="font-bold text-lg mb-1">沒關係，這正是我們今天要探索的目標！</p>
+                <p>當角度不是直角（無法直接用畢氏定理）時，我們需要用到「餘弦定理」。讓我們透過接下來的步驟來找出答案吧！</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
     // Step 1: place triangle ABC in the coordinate plane.
     const Step1 = () => {
       const [bx, setBx] = useState('');
@@ -239,8 +289,71 @@
       );
     };
 
-    // Step 4: two separate application questions with independent answer states.
+    // Step 4: Formula transformation & derivation breakdown
     const Step4 = () => {
+      return (
+        <div className="mx-auto max-w-4xl animate-fade-in">
+          <StepHeading number="4">公式變形與推導</StepHeading>
+          <p className="mb-6 text-lg leading-7 text-slate-600">
+            餘弦定理 <span className="font-mono font-semibold text-indigo-700">c² = a² + b² − 2ab cos C</span> 可以根據所求的邊或角進行代數變形。讓我們來看看如何一步步推導出求角的公式。
+          </p>
+
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
+              <h3 className="mb-3 text-lg font-bold text-indigo-900">1. 邊長公式的變形（求任一邊）</h3>
+              <p className="mb-4 text-slate-600">以夾角對應的邊公式為基礎，若想求其他邊（如邊 b 或邊 a），只要對調對應的字母與夾角即可：</p>
+              <div className="grid gap-4 md:grid-cols-2 font-mono text-base">
+                <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
+                  <span className="text-xs font-sans font-bold text-indigo-600 block mb-1">求邊 b</span>
+                  b² = a² + c² − 2ac cos B<br/>
+                  <span className="text-xs font-sans text-slate-500 font-normal">（求出 b² 後再開根號得 b）</span>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
+                  <span className="text-xs font-sans font-bold text-indigo-600 block mb-1">求邊 a</span>
+                  a² = b² + c² − 2bc cos A
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+              <h3 className="mb-3 text-lg font-bold text-pink-900">2. 角度公式的逐步推導（由三邊求角 $\cos A$）</h3>
+              <p className="mb-4 text-slate-600">如果已知三角形的三邊長，想求出某個角（例如夾角 A），我們如何從餘弦定理一步步解出 <span className="font-mono text-pink-600 font-bold">cos A</span>？</p>
+              
+              <div className="space-y-4 font-mono text-sm md:text-base text-slate-700 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-sans font-bold flex items-center justify-center mt-0.5">①</span>
+                  <div>
+                    <span className="font-bold text-slate-800">從以角 A 對應邊 a 的餘弦定理出發：</span>
+                    <div className="mt-1 text-indigo-900">a² = b² + c² − 2bc cos A</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 border-t border-slate-200 pt-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-sans font-bold flex items-center justify-center mt-0.5">②</span>
+                  <div>
+                    <span className="font-bold text-slate-800">移項：將含有 $\cos A$ 的項移到左邊， $a^2$ 移到右邊</span>
+                    <div className="mt-1 text-indigo-900">2bc cos A = b² + c² − a²</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 border-t border-slate-200 pt-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-sans font-bold flex items-center justify-center mt-0.5">③</span>
+                  <div>
+                    <span className="font-bold text-slate-800">兩邊同除以 $2bc$，得到求角的最終公式：</span>
+                    <div className="mt-2 inline-block bg-white px-4 py-2 rounded-lg border border-pink-200 text-pink-700 font-bold">
+                      cos A = (b² + c² − a²) / (2bc)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Step 5: two separate application questions with independent answer states
+    const Step5 = () => {
       const [ex1Ans, setEx1Ans] = useState('');
       const [ex2Ans, setEx2Ans] = useState('');
       const ex1Correct = ex1Ans.trim() !== '' && Number(ex1Ans) === 12;
@@ -250,11 +363,11 @@
 
       return (
         <div className="animate-fade-in">
-          <StepHeading number="4">概念穩固：互動習題</StepHeading>
+          <StepHeading number="5">概念穩固：互動習題</StepHeading>
           <div className="mb-7 flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
             <span className="rounded-lg bg-indigo-100 p-2 text-lg text-indigo-700" aria-hidden="true">i</span>
             <div>
-              <p className="mb-1 font-semibold text-slate-800">公式變形提醒</p>
+              <p className="mb-1 font-semibold text-slate-800">公式運用提醒</p>
               <p className="text-sm leading-6">求邊長 b：b² = a² + c² − 2ac cos B，求出 b² 後再開平方根。<br />求角 A：cos A = (b² + c² − a²) / 2bc。</p>
             </div>
           </div>
@@ -338,8 +451,8 @@
 
     const App = () => {
       const [step, setStep] = useState(0);
-      const steps = ['1. 建立坐標系', '2. 距離公式', '3. 展開與化簡', '4. 概念穩固'];
-      const StepComponents = [Step1, Step2, Step3, Step4];
+      const steps = ['0. 思考引導', '1. 建立坐標系', '2. 距離公式', '3. 展開與化簡', '4. 公式變形推導', '5. 概念穩固'];
+      const StepComponents = [Step0, Step1, Step2, Step3, Step4, Step5];
       const CurrentStep = StepComponents[step];
 
       return (
@@ -349,13 +462,12 @@
               <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-indigo-500 opacity-30 blur-3xl"></div>
               <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-pink-500 opacity-30 blur-3xl"></div>
               <h1 className="relative z-10 mb-3 text-3xl font-extrabold tracking-tight md:text-4xl">餘弦定理互動探索</h1>
-              <p className="relative z-10 text-base font-medium leading-7 text-slate-300 md:text-lg">跟著步驟，一步步推導並應用《泰宇 正餘弦定理》</p>
             </header>
 
             <nav aria-label="活動步驟" className="flex overflow-x-auto border-b border-slate-200 bg-slate-50">
               {steps.map((label, index) => (
                 <button key={label} type="button" onClick={() => setStep(index)} aria-current={step === index ? 'step' : undefined}
-                  className={`min-w-[145px] flex-1 border-b-4 px-4 py-4 text-sm font-bold transition ${step === index ? 'border-indigo-600 bg-white text-indigo-700' : 'border-transparent text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}>
+                  className={`min-w-[120px] flex-1 border-b-4 px-3 py-4 text-sm font-bold transition ${step === index ? 'border-indigo-600 bg-white text-indigo-700' : 'border-transparent text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}>
                   {label}
                 </button>
               ))}
@@ -370,9 +482,9 @@
                 className={`rounded-xl px-5 py-3 font-bold transition ${step === 0 ? 'cursor-not-allowed bg-slate-200 text-slate-400' : 'border-2 border-slate-200 bg-white text-slate-700 hover:bg-slate-100'}`}>
                 上一步
               </button>
-              <span className="text-sm text-slate-500">第 {step + 1} / 4 步</span>
-              <button type="button" onClick={() => setStep(current => Math.min(3, current + 1))} disabled={step === 3}
-                className={`rounded-xl px-5 py-3 font-bold shadow-sm transition ${step === 3 ? 'cursor-not-allowed bg-slate-200 text-slate-400 shadow-none' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
+              <span className="text-sm text-slate-500">第 {step + 1} / 6 步</span>
+              <button type="button" onClick={() => setStep(current => Math.min(5, current + 1))} disabled={step === 5}
+                className={`rounded-xl px-5 py-3 font-bold shadow-sm transition ${step === 5 ? 'cursor-not-allowed bg-slate-200 text-slate-400 shadow-none' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
                 下一步
               </button>
             </footer>
