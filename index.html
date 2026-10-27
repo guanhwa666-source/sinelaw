@@ -126,9 +126,8 @@
           </div>
 
           {choice === 'yes' && (
-            <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 animate-fade-in text-center">
-              <p className="font-bold text-lg mb-1">你會用什麼方法？</p>
-              <p>沒錯，我們確實可以透過坐標系與距離公式把它推導出來。接下來就讓我們一起一步步探索！</p>
+            <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 animate-fade-in text-center font-bold text-lg">
+              你會用什麼方法？
             </div>
           )}
 
@@ -142,7 +141,7 @@
       );
     };
 
-    // Step 1: Real B only shows when B is selected correctly. Incorrect selections render cleanly outside the triangle.
+    // Step 1: Complete triangle shown by default. Misselections produce dashed lines + red indicator points.
     const Step1 = () => {
       const [bx, setBx] = useState('');
       const [by, setBy] = useState('');
@@ -154,19 +153,19 @@
       const allCorrect = bCorrect && aCorrect;
       const answered = Boolean(bx && by && ax && ay);
 
-      // Check if user selected wrong option
       const bHasChoice = bx !== '' && by !== '';
       const bWrong = bHasChoice && !bCorrect;
 
       const aHasChoice = ax !== '' && ay !== '';
       const aWrong = aHasChoice && !aCorrect;
 
-      // Coordinate mapping for incorrect choices to project clearly outside the triangle
+      // Coordinate mapping for incorrect B choices
       let wrongBX = 235, wrongBY = 175;
-      if (bx === 'a' && by === 'a') { wrongBX = 235; wrongBY = 70; }  // Far top right
+      if (bx === 'a' && by === 'a') { wrongBX = 235; wrongBY = 70; }
       else if (bx === 'b') { wrongBX = 140; wrongBY = 175; }
       else if (bx === 'c') { wrongBX = 90; wrongBY = 175; }
 
+      // Coordinate mapping for incorrect A choices
       let wrongAX = 140, wrongAY = 55;
       if (ax === 'a cos C') { wrongAX = 190; wrongAY = 55; }
       else if (ax === 'b sin C') { wrongAX = 85; wrongAY = 55; }
@@ -214,7 +213,7 @@
               <p className="mt-4 text-sm text-slate-500">提示：點 A 到原點 C 的距離是 b，而 CA 與正 x 軸的夾角是 C。</p>
               {answered && (allCorrect
                 ? <SuccessMessage>完全正確！B = (a, 0)，A = (b cos C, b sin C)。</SuccessMessage>
-                : <HintMessage>⚠️ 注意右圖：紅點代表你選錯的坐標，它沒有落在正確的頂點上！</HintMessage>)}
+                : <HintMessage>⚠️ 注意右圖：紅點與虛線代表你選錯的坐標位置，它沒有落在正確的頂點上！</HintMessage>)}
             </div>
           </div>
 
@@ -225,54 +224,43 @@
               <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               
-              {/* Base line AC and C point always visible */}
-              <line x1="45" y1="175" x2="140" y2="55" stroke="#4f46e5" strokeWidth="2.5" />
+              {/* ALWAYS VISIBLE FULL TRIANGLE */}
+              <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
+              
+              {/* Vertex C (Origin) */}
               <circle cx="45" cy="175" r="5" fill="#f43f5e" />
               <text x="15" y="194" fontSize="11" fontWeight="700" fill="#334155">C (0, 0)</text>
 
-              {/* Point A display: show green if correct, or dashed + red if wrong */}
-              {aCorrect ? (
-                <g>
-                  <circle cx="140" cy="55" r="5" fill="#059669" />
-                  <text x="75" y="40" fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
-                </g>
-              ) : (
-                <g>
-                  <circle cx="140" cy="55" r="5" fill="#f43f5e" />
-                  <text x="120" y="40" fontSize="11" fontWeight="700" fill="#334155">A</text>
-                  {aWrong && (
-                    <g className="animate-fade-in">
-                      <line x1="140" y1="55" x2={wrongAX} y2={wrongAY} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
-                      <circle cx={wrongAX} cy={wrongAY} r="5" fill="#ef4444" />
-                      <text x={wrongAX + 8} y={wrongAY - 5} fontSize="10" fontWeight="700" fill="#ef4444">選錯的 A{aText}</text>
-                    </g>
-                  )}
-                </g>
-              )}
+              {/* Real Vertex A */}
+              <circle cx="140" cy="55" r="5" fill={aCorrect ? '#059669' : '#f43f5e'} />
+              <text x="135" y="38" fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
 
-              {/* Point B display: ONLY show real B and full triangle IF bCorrect */}
-              {bCorrect ? (
+              {/* Incorrect A selection feedback line & point */}
+              {aWrong && (
                 <g className="animate-fade-in">
-                  <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
-                  <circle cx="235" cy="175" r="5" fill="#059669" />
-                  <text x="210" y="195" fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
-                  <text x="190" y="107" fontSize="14" fontWeight="700" fill="#db2777">c</text>
-                </g>
-              ) : (
-                <g>
-                  {/* Dashed line along x axis indicating side 'a' */}
-                  <line x1="45" y1="175" x2="235" y2="175" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4,4" />
-                  {bWrong && (
-                    <g className="animate-fade-in">
-                      <circle cx={wrongBX} cy={wrongBY} r="6" fill="#ef4444" />
-                      <text x={wrongBX + 8} y={wrongBY + 4} fontSize="10" fontWeight="700" fill="#ef4444">選錯的 B{bText}</text>
-                    </g>
-                  )}
+                  <line x1="140" y1="55" x2={wrongAX} y2={wrongAY} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
+                  <circle cx={wrongAX} cy={wrongAY} r="5" fill="#ef4444" />
+                  <text x={wrongAX + 8} y={wrongAY - 5} fontSize="10" fontWeight="700" fill="#ef4444">選錯的 A</text>
                 </g>
               )}
 
-              <text x="100" y="165" fontSize="14" fontWeight="700" fill="#4f46e5">a</text>
+              {/* Real Vertex B */}
+              <circle cx="235" cy="175" r="5" fill={bCorrect ? '#059669' : '#f43f5e'} />
+              <text x="220" y="195" fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
+
+              {/* Incorrect B selection feedback line & point */}
+              {bWrong && (
+                <g className="animate-fade-in">
+                  <line x1="235" y1="175" x2={wrongBX} y2={wrongBY} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
+                  <circle cx={wrongBX} cy={wrongBY} r="6" fill="#ef4444" />
+                  <text x={wrongBX + 8} y={wrongBY + 4} fontSize="10" fontWeight="700" fill="#ef4444">選錯的 B</text>
+                </g>
+              )}
+
+              {/* Triangle side labels & Angle C */}
+              <text x="137" y="165" fontSize="14" fontWeight="700" fill="#4f46e5">a</text>
               <text x="74" y="107" fontSize="14" fontWeight="700" fill="#4f46e5">b</text>
+              <text x="190" y="107" fontSize="14" fontWeight="700" fill="#db2777">c</text>
               <path d="M 72 175 A 27 27 0 0 0 66 158" fill="none" stroke="#f59e0b" strokeWidth="2" />
               <text x="78" y="164" fontSize="12" fontWeight="700" fill="#d97706">∠C</text>
             </svg>
@@ -386,7 +374,7 @@
       );
     };
 
-    // Step 4: Formated with proper \frac fractional presentation instead of slash /
+    // Step 4: Formated with proper \frac fractional presentation
     const Step4 = () => {
       const [step2Choice, setStep2Choice] = useState('');
       const [step3Choice, setStep3Choice] = useState('');
@@ -640,12 +628,10 @@
               {ex2Correct && <SuccessMessage>答對了！cos A = −1/2，因此 ∠A = 120°。</SuccessMessage>}
               {ex2Wrong && <HintMessage>請回想特殊角的餘弦值：cos 60° = 1/2，而此題的餘弦值是負數。</HintMessage>}
 
-              {/* Large, clearly readable SVG diagram for Exercise B */}
               <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-4">
                 <svg viewBox="0 0 280 160" className="w-full max-w-[280px]" role="img" aria-label="習題 B 大尺寸示意圖，角 A 為鈍角">
                   <polygon points="35,130 90,65 245,130" fill="rgba(236,72,153,.10)" stroke="#ec4899" strokeWidth="2.5" strokeLinejoin="round" />
                   
-                  {/* Accurate inner arc for obtuse Angle A */}
                   <path d="M 68 91 A 30 30 0 0 0 119 77" fill="none" stroke="#ec4899" strokeWidth="2.5" />
                   <text x="82" y="105" fontSize="13" fontWeight="700" fill="#db2777">A = ?</text>
                   
