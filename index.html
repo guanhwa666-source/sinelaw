@@ -70,7 +70,7 @@
       </h2>
     );
 
-    // Step 0: Pure thinking prompt without interactive buttons
+    // Step 0: Pure thinking prompt
     const Step0 = () => {
       return (
         <div className="mx-auto max-w-4xl animate-fade-in py-2">
@@ -115,7 +115,7 @@
       );
     };
 
-    // Step 1: Added dashed perpendicular drop line from A to x-axis
+    // Step 1: Coordinates step
     const Step1 = () => {
       const [bx, setBx] = useState('');
       const [by, setBy] = useState('');
@@ -196,7 +196,6 @@
               <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               
-              {/* Perpendicular drop line from A to x-axis */}
               <line x1="140" y1="55" x2="140" y2="175" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,4" opacity="0.6" />
               
               <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
@@ -241,7 +240,7 @@
       );
     };
 
-    // Step 2: use the distance formula.
+    // Step 2: Distance formula step
     const Step2 = () => {
       const [part1, setPart1] = useState('');
       const [part2, setPart2] = useState('');
@@ -300,7 +299,7 @@
       );
     };
 
-    // Step 3: expand and simplify
+    // Step 3: Identity step
     const Step3 = () => {
       const [ans, setAns] = useState('');
       const cleanAns = ans.trim().toLowerCase();
@@ -347,7 +346,7 @@
       );
     };
 
-    // Step 4: Formated with proper \frac fractional presentation
+    // Step 4: Formula derivation step
     const Step4 = () => {
       const [step2Choice, setStep2Choice] = useState('');
       const [step3Choice, setStep3Choice] = useState('');
@@ -456,22 +455,32 @@
       );
     };
 
-    // Step 5: Exercises with side b question & square root helper button
+    // Step 5: Exercise A with 5 custom buttons (√2, √3, √5, 2, 3)
     const Step5 = () => {
       const [ex1Ans, setEx1Ans] = useState('');
       const [ex2Ans, setEx2Ans] = useState('');
       const [showEx1Hint, setShowEx1Hint] = useState(false);
       const [showEx2Hint, setShowEx2Hint] = useState(false);
 
-      // Helper to insert square root symbol into input A
-      const insertSqrt = () => {
-        setEx1Ans(prev => prev.includes('√') ? prev : '√' + prev);
+      // Append symbol when student clicks a button
+      const appendSymbol = (sym) => {
+        setEx1Ans(prev => prev + sym);
       };
 
-      // Validation logic for Exercise A: accepts 12, sqrt12, √12, 2sqrt3, 2√3
+      // Backspace handler
+      const handleBackspace = () => {
+        setEx1Ans(prev => prev.slice(0, -1));
+      };
+
+      // Clear handler
+      const handleClear = () => {
+        setEx1Ans('');
+      };
+
+      // Validation logic for Exercise A: accepts 2√3 or √12 (and their variations)
       const checkEx1 = (val) => {
         const clean = val.replace(/\s+/g, '').toLowerCase();
-        return clean === '12' || clean === 'sqrt12' || clean === '√12' || clean === '2sqrt3' || clean === '2√3';
+        return clean === '2√3' || clean === '2sqrt3' || clean === '√12' || clean === 'sqrt12';
       };
 
       const num2 = Number(ex2Ans.trim());
@@ -505,7 +514,7 @@
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Exercise A: Changed to asking for side b with sqrt helper button */}
+            {/* Exercise A with 5 specific symbol buttons */}
             <section className={`rounded-2xl border-2 p-5 transition-all md:p-6 ${ex1Correct ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white shadow-sm'}`} aria-labelledby="exercise-a-title">
               <h3 id="exercise-a-title" className="mb-4 flex items-center text-lg font-bold text-slate-800">
                 <span className="mr-3 flex h-7 w-7 items-center justify-center rounded-md bg-sky-500 text-sm text-white">A</span>
@@ -514,7 +523,7 @@
               <p className="mb-4 border-l-4 border-sky-300 pl-3 text-sm leading-6 text-slate-600">
                 <span className="mb-1 block text-xs font-bold text-sky-700">課本動動筆 4</span>
                 在 △ABC 中，已知 a = 4、c = 2，且 ∠B = 60°。求邊長 <strong>b</strong> 的長度。<br />
-                <span className="mt-1 inline-block text-slate-500">提示：先求出 b² = 12，再開根號化簡。</span>
+                <span className="mt-1 inline-block text-slate-500">提示：可點擊下方按鈕組合成答案。</span>
               </p>
 
               <div className="mb-4">
@@ -542,20 +551,32 @@
                 )}
               </div>
 
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <label htmlFor="exercise-a-answer" className="text-lg font-bold text-slate-700">b =</label>
-                <input id="exercise-a-answer" type="text" value={ex1Ans} onChange={e => setEx1Ans(e.target.value)} className="w-32 rounded-lg border-2 border-slate-300 p-2 text-center font-bold text-slate-800 focus:border-sky-500" placeholder="例如 √12 或 2√3" />
-                <button
-                  type="button"
-                  onClick={insertSqrt}
-                  className="rounded-lg bg-sky-100 px-3 py-2 text-sm font-bold text-sky-700 transition hover:bg-sky-200 border border-sky-200 shadow-sm"
-                  title="點擊插入根號符號"
-                >
-                  √ 根號
-                </button>
+              {/* Input field and 5 symbol buttons */}
+              <div className="mb-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <label htmlFor="exercise-a-answer" className="text-lg font-bold text-slate-700">b =</label>
+                  <input id="exercise-a-answer" type="text" readOnly value={ex1Ans} className="flex-1 rounded-xl border-2 border-sky-200 bg-sky-50/50 p-2.5 text-center font-mono text-xl font-bold text-sky-900 shadow-inner outline-none" placeholder="點擊下方按鈕輸入" />
+                  <button type="button" onClick={handleBackspace} className="rounded-lg bg-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-300 transition" title="退格">⌫</button>
+                  <button type="button" onClick={handleClear} className="rounded-lg bg-rose-100 px-3 py-2 text-sm font-bold text-rose-700 hover:bg-rose-200 transition" title="清空">清空</button>
+                </div>
+
+                {/* The 5 requested buttons */}
+                <div className="grid grid-cols-5 gap-2 pt-1">
+                  {['√2', '√3', '√5', '2', '3'].map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => appendSymbol(item)}
+                      className="rounded-xl border-2 border-sky-200 bg-white py-2.5 text-center font-mono text-lg font-bold text-sky-800 shadow-sm transition hover:bg-sky-50 hover:border-sky-400 active:scale-95"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {ex1Correct && <SuccessMessage>正確！b = 2√3（或 √12）。</SuccessMessage>}
-              {ex1Wrong && <HintMessage>再想一想：先算出 b² = 12，開根號後可化簡為 2√3。</HintMessage>}
+
+              {ex1Correct && <SuccessMessage>正確！b = 2√3。</SuccessMessage>}
+              {ex1Wrong && <HintMessage>再想一想：算出 b² = 12 開根號後，點擊「2」再點擊「√3」即可！</HintMessage>}
               
               <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-4">
                 <svg viewBox="0 0 220 145" className="w-full max-w-[260px]" role="img" aria-label="習題 A 三角形示意圖，角 B 為 60 度">
