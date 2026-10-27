@@ -56,7 +56,7 @@
       </h2>
     );
 
-    // Step 0: Initial thinking / engagement prompt with added SVG illustration
+    // Step 0: Initial thinking / engagement prompt
     const Step0 = () => {
       const [choice, setChoice] = useState(null);
 
@@ -67,10 +67,10 @@
           <div className="grid gap-6 md:grid-cols-2 items-center mb-6">
             <div className="rounded-2xl border-2 border-indigo-100 bg-white p-6 shadow-sm">
               <p className="text-lg font-bold text-slate-800 mb-3">
-                如果我們已知 ΔABC 的兩邊長 <span className="text-indigo-600">a</span>、<span className="text-indigo-600">b</span>，以及其夾角 <span className="text-amber-600">∠C</span>：
+                如果我們已知 ΔABC 的兩邊長 a、b，以及其夾角 ∠C：
               </p>
               <p className="text-base text-slate-600 mb-6">
-                你覺得有沒有辦法求出第三邊 <span className="text-pink-600 font-bold">c</span> 的長度呢？
+                你覺得有沒有辦法求出第三邊 c 的長度呢？
               </p>
               
               <div className="flex flex-wrap gap-4">
@@ -127,7 +127,7 @@
       );
     };
 
-    // Step 1: place triangle ABC in the coordinate plane.
+    // Step 1: place triangle ABC in the coordinate plane with dynamic incorrect visual feedback.
     const Step1 = () => {
       const [bx, setBx] = useState('');
       const [by, setBy] = useState('');
@@ -135,6 +135,21 @@
       const [ay, setAy] = useState('');
       const answered = Boolean(bx && by && ax && ay);
       const correct = bx === 'a' && by === '0' && ax === 'b cos C' && ay === 'b sin C';
+
+      // Dynamic positions for B based on selection
+      let bXPos = 235; // default correct (a, 0)
+      if (bx === 'b') bXPos = 180;
+      if (bx === 'c') bXPos = 130;
+      let bYPos = 175;
+      if (by === 'a') bYPos = 100; // incorrect y for B
+
+      // Dynamic positions for A based on selection
+      let aXPos = 140; // default correct (b cos C)
+      if (ax === 'a cos C') aXPos = 180;
+      if (ax === 'b sin C') aXPos = 100;
+      let aYPos = 55; // default correct (b sin C)
+      if (ay === 'b cos C') aYPos = 120;
+      if (ay === 'a sin C') aYPos = 80;
 
       const bText = (bx !== '' && by !== '') ? ` (${bx}, ${by})` : '';
       const aText = (ax !== '' && ay !== '') ? ` (${ax}, ${ay})` : '';
@@ -177,7 +192,7 @@
               <p className="mt-4 text-sm text-slate-500">提示：點 A 到原點 C 的距離是 b，而 CA 與正 x 軸的夾角是 C。</p>
               {answered && (correct
                 ? <SuccessMessage>完全正確！B = (a, 0)，A = (b cos C, b sin C)。</SuccessMessage>
-                : <HintMessage>再檢查一次：B 在 x 軸上；點 A 的兩個坐標分別對應水平與垂直方向。</HintMessage>)}
+                : <HintMessage>⚠️ 觀察右圖：你所選的座標讓點跑到了不合邏輯的位置，請再檢查一次定義！</HintMessage>)}
             </div>
           </div>
 
@@ -187,16 +202,14 @@
               <defs><marker id="arrow-step1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" /></marker></defs>
               <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
-              <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
+              {/* Dynamic polygon based on selected positions */}
+              <polygon points={`45,175 ${bXPos},${bYPos} ${aXPos},${aYPos}`} fill={correct ? "rgba(79,70,229,.10)" : "rgba(239,68,68,.08)"} stroke={correct ? "#4f46e5" : "#ef4444"} strokeWidth="2.5" strokeLinejoin="round" />
               <circle cx="45" cy="175" r="5" fill="#f43f5e" />
-              <circle cx="235" cy="175" r="5" fill={correct ? '#059669' : '#f43f5e'} />
-              <circle cx="140" cy="55" r="5" fill={correct ? '#059669' : '#f43f5e'} />
+              <circle cx={bXPos} cy={bYPos} r="5" fill={correct ? '#059669' : '#ef4444'} />
+              <circle cx={aXPos} cy={aYPos} r="5" fill={correct ? '#059669' : '#ef4444'} />
               <text x="15" y="194" fontSize="11" fontWeight="700" fill="#334155">C (0, 0)</text>
-              <text x="210" y="195" fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
-              <text x="75" y="40" fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
-              <text x="137" y="165" fontSize="14" fontWeight="700" fill="#4f46e5">a</text>
-              <text x="74" y="107" fontSize="14" fontWeight="700" fill="#4f46e5">b</text>
-              <text x="190" y="107" fontSize="14" fontWeight="700" fill="#db2777">c</text>
+              <text x={bXPos - 15} y={bYPos + 20} fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
+              <text x={aXPos - 25} y={aYPos - 12} fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
               <path d="M 72 175 A 27 27 0 0 0 66 158" fill="none" stroke="#f59e0b" strokeWidth="2" />
               <text x="78" y="164" fontSize="12" fontWeight="700" fill="#d97706">∠C</text>
             </svg>
@@ -310,7 +323,7 @@
       );
     };
 
-    // Step 4: Interactive Formula Derivation for cos A (Interactive for students)
+    // Step 4: Interactive Formula Derivation for cos A with final formula box added
     const Step4 = () => {
       const [step2Choice, setStep2Choice] = useState('');
       const [step3Choice, setStep3Choice] = useState('');
@@ -395,8 +408,11 @@
                         </label>
                       </div>
                       {step3Choice === 'divided_by_2bc' && (
-                        <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 font-sans font-bold text-center">
-                          🎉 太棒了！你已經成功完整推導出求角的餘弦定理公式！
+                        <div className="mt-4 p-5 bg-emerald-50 border-2 border-emerald-200 rounded-xl text-emerald-900 font-sans text-center animate-fade-in">
+                          <p className="font-bold text-lg mb-2">🎉 太棒了！你已經成功完整推導出求角的餘弦定理公式：</p>
+                          <div className="inline-block bg-white px-6 py-3 rounded-xl border border-emerald-300 font-mono text-xl font-bold text-emerald-800 shadow-sm">
+                            cos A = (b² + c² − a²) / (2bc)
+                          </div>
                         </div>
                       )}
                       {step3Choice === 'wrong2' && <HintMessage>2bc 與 cos A 之間是相乘關係，要消掉相乘需要用「除法」喔！</HintMessage>}
@@ -410,7 +426,7 @@
       );
     };
 
-    // Step 5: two separate application questions with hidden answer masks
+    // Step 5: two separate application questions with hidden answer masks and enlarged diagrams
     const Step5 = () => {
       const [ex1Ans, setEx1Ans] = useState('');
       const [ex2Ans, setEx2Ans] = useState('');
@@ -481,13 +497,17 @@
               </div>
               {ex1Correct && <SuccessMessage>正確！b² = 12，所以 b = 2√3。</SuccessMessage>}
               {ex1Wrong && <HintMessage>再算一次：16 + 4 − 2 × 4 × 2 × 1/2。注意最後一項的減號。</HintMessage>}
-              <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-3">
-                <svg viewBox="0 0 180 125" className="w-full max-w-[190px]" role="img" aria-label="習題 A 三角形示意圖，角 B 為 60 度">
-                  <polygon points="24,103 57,44 153,103" fill="rgba(14,165,233,.10)" stroke="#0ea5e9" strokeWidth="2" strokeLinejoin="round" />
-                  <path d="M 42 103 A 18 18 0 0 0 34 87" fill="none" stroke="#0ea5e9" strokeWidth="2" />
-                  <text x="41" y="94" fontSize="10" fontWeight="700" fill="#0369a1">60°</text>
-                  <text x="13" y="116" fontSize="11" fontWeight="700" fill="#334155">B</text><text x="53" y="36" fontSize="11" fontWeight="700" fill="#334155">A</text><text x="157" y="116" fontSize="11" fontWeight="700" fill="#334155">C</text>
-                  <text x="16" y="68" fontSize="10" fontWeight="700" fill="#0284c7">c = 2</text><text x="83" y="119" fontSize="10" fontWeight="700" fill="#0284c7">a = 4</text><text x="103" y="66" fontSize="10" fontWeight="700" fill="#db2777">b = ?</text>
+              <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <svg viewBox="0 0 200 135" className="w-full max-w-[240px]" role="img" aria-label="習題 A 三角形示意圖，角 B 為 60 度">
+                  <polygon points="25,115 65,40 175,115" fill="rgba(14,165,233,.10)" stroke="#0ea5e9" strokeWidth="2.5" strokeLinejoin="round" />
+                  <path d="M 45 115 A 20 20 0 0 0 38 97" fill="none" stroke="#0ea5e9" strokeWidth="2.5" />
+                  <text x="44" y="102" fontSize="11" fontWeight="700" fill="#0369a1">60°</text>
+                  <text x="14" y="127" fontSize="12" fontWeight="700" fill="#334155">B</text>
+                  <text x="61" y="32" fontSize="12" fontWeight="700" fill="#334155">A</text>
+                  <text x="179" y="127" fontSize="12" fontWeight="700" fill="#334155">C</text>
+                  <text x="25" y="75" fontSize="11" fontWeight="700" fill="#0284c7">c = 2</text>
+                  <text x="95" y="130" fontSize="11" fontWeight="700" fill="#0284c7">a = 4</text>
+                  <text x="120" y="72" fontSize="11" fontWeight="700" fill="#db2777">b = ?</text>
                 </svg>
               </div>
             </section>
@@ -537,13 +557,17 @@
               </div>
               {ex2Correct && <SuccessMessage>答對了！cos A = −1/2，因此 ∠A = 120°。</SuccessMessage>}
               {ex2Wrong && <HintMessage>請回想特殊角的餘弦值：cos 60° = 1/2，而此題的餘弦值是負數。</HintMessage>}
-              <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-3">
-                <svg viewBox="0 0 180 125" className="w-full max-w-[190px]" role="img" aria-label="習題 B 三角形示意圖，角 A 為鈍角">
-                  <polygon points="28,103 62,75 142,103" fill="rgba(236,72,153,.10)" stroke="#ec4899" strokeWidth="2" strokeLinejoin="round" />
-                  <path d="M 50 84 A 19 19 0 0 1 82 84" fill="none" stroke="#ec4899" strokeWidth="2" />
-                  <text x="60" y="96" fontSize="10" fontWeight="700" fill="#db2777">A = ?</text>
-                  <text x="17" y="116" fontSize="11" fontWeight="700" fill="#334155">B</text><text x="145" y="116" fontSize="11" fontWeight="700" fill="#334155">C</text><text x="58" y="67" fontSize="11" fontWeight="700" fill="#334155">A</text>
-                  <text x="37" y="82" fontSize="10" fontWeight="700" fill="#475569">c = 3</text><text x="100" y="82" fontSize="10" fontWeight="700" fill="#475569">b = 5</text><text x="82" y="119" fontSize="10" fontWeight="700" fill="#475569">a = 7</text>
+              <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <svg viewBox="0 0 200 135" className="w-full max-w-[240px]" role="img" aria-label="習題 B 三角形示意圖，角 A 為鈍角">
+                  <polygon points="30,115 70,75 165,115" fill="rgba(236,72,153,.10)" stroke="#ec4899" strokeWidth="2.5" strokeLinejoin="round" />
+                  <path d="M 55 90 A 22 22 0 0 1 90 90" fill="none" stroke="#ec4899" strokeWidth="2.5" />
+                  <text x="66" y="106" fontSize="11" fontWeight="700" fill="#db2777">A = ?</text>
+                  <text x="18" y="127" fontSize="12" fontWeight="700" fill="#334155">B</text>
+                  <text x="169" y="127" fontSize="12" fontWeight="700" fill="#334155">C</text>
+                  <text x="65" y="66" fontSize="12" fontWeight="700" fill="#334155">A</text>
+                  <text x="40" y="90" fontSize="11" fontWeight="700" fill="#475569">c = 3</text>
+                  <text x="112" y="90" fontSize="11" fontWeight="700" fill="#475569">b = 5</text>
+                  <text x="92" y="130" fontSize="11" fontWeight="700" fill="#475569">a = 7</text>
                 </svg>
               </div>
             </section>
