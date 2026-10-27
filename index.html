@@ -134,13 +134,11 @@
       const aHasChoice = ax !== '' && ay !== '';
       const aWrong = aHasChoice && !aCorrect;
 
-      // Coordinate mapping for incorrect B choices
       let wrongBX = 235, wrongBY = 175;
       if (bx === 'a' && by === 'a') { wrongBX = 235; wrongBY = 70; }
       else if (bx === 'b') { wrongBX = 140; wrongBY = 175; }
       else if (bx === 'c') { wrongBX = 90; wrongBY = 175; }
 
-      // Coordinate mapping for incorrect A choices
       let wrongAX = 140, wrongAY = 55;
       if (ax === 'a cos C') { wrongAX = 190; wrongAY = 55; }
       else if (ax === 'b sin C') { wrongAX = 85; wrongAY = 55; }
@@ -199,20 +197,16 @@
               <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               
-              {/* ALWAYS VISIBLE STANDARD TRIANGLE */}
               <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
               
-              {/* Vertex C (Origin) */}
               <circle cx="45" cy="175" r="5" fill="#f43f5e" />
               <text x="15" y="194" fontSize="11" fontWeight="700" fill="#334155">C (0, 0)</text>
 
-              {/* Real Vertex A */}
               <circle cx="140" cy="55" r="5" fill={aCorrect ? '#059669' : '#f43f5e'} />
               <text x="135" y="38" fontSize="11" fontWeight="700" fill="#334155">
                 {aCorrect ? `A ${aChoiceText}` : 'A'}
               </text>
 
-              {/* Incorrect A selection */}
               {aWrong && (
                 <g className="animate-fade-in">
                   <line x1="140" y1="55" x2={wrongAX} y2={wrongAY} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
@@ -221,13 +215,11 @@
                 </g>
               )}
 
-              {/* Real Vertex B */}
               <circle cx="235" cy="175" r="5" fill={bCorrect ? '#059669' : '#f43f5e'} />
               <text x="225" y="195" fontSize="12" fontWeight="700" fill="#334155">
                 {bCorrect ? `B ${bChoiceText}` : 'B'}
               </text>
 
-              {/* Incorrect B selection */}
               {bWrong && (
                 <g className="animate-fade-in">
                   <line x1="235" y1="175" x2={wrongBX} y2={wrongBY} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
@@ -236,7 +228,6 @@
                 </g>
               )}
 
-              {/* Triangle side labels & Angle C */}
               <text x="137" y="165" fontSize="14" fontWeight="700" fill="#4f46e5">a</text>
               <text x="74" y="107" fontSize="14" fontWeight="700" fill="#4f46e5">b</text>
               <text x="190" y="107" fontSize="14" fontWeight="700" fill="#db2777">c</text>
@@ -307,11 +298,12 @@
       );
     };
 
-    // Step 3: expand and simplify.
+    // Step 3: expand and simplify (Relaxed input validation)
     const Step3 = () => {
       const [ans, setAns] = useState('');
-      const answered = ans.trim() !== '';
-      const correct = ans.trim() === '1';
+      const cleanAns = ans.trim().toLowerCase();
+      const answered = cleanAns !== '';
+      const correct = cleanAns === '1' || cleanAns === '1.0';
 
       return (
         <div className="mx-auto max-w-4xl animate-fade-in">
@@ -334,7 +326,7 @@
               <p className="mb-4 text-center text-sm leading-6 text-slate-600">基本三角恆等式告訴我們：cos² C + sin² C = 多少？</p>
               <div className="flex flex-wrap items-center justify-center gap-3 text-xl">
                 <label htmlFor="identity-answer" className="font-mono text-indigo-900">cos² C + sin² C =</label>
-                <input id="identity-answer" type="text" inputMode="numeric" value={ans} onChange={e => setAns(e.target.value)} disabled={correct} className={`w-20 rounded-lg border-2 p-2 text-center font-bold shadow-sm outline-none ${correct ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : 'border-pink-300 focus:border-pink-500'}`} placeholder="?" />
+                <input id="identity-answer" type="text" value={ans} onChange={e => setAns(e.target.value)} disabled={correct} className={`w-20 rounded-lg border-2 p-2 text-center font-bold shadow-sm outline-none ${correct ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : 'border-pink-300 focus:border-pink-500'}`} placeholder="?" />
               </div>
               {answered && (correct
                 ? <SuccessMessage>正確！將 cos² C + sin² C = 1 代入，就能得到餘弦定理。</SuccessMessage>
@@ -462,15 +454,18 @@
       );
     };
 
-    // Step 5: Exercises
+    // Step 5: Exercises with relaxed number validation
     const Step5 = () => {
       const [ex1Ans, setEx1Ans] = useState('');
       const [ex2Ans, setEx2Ans] = useState('');
       const [showEx1Hint, setShowEx1Hint] = useState(false);
       const [showEx2Hint, setShowEx2Hint] = useState(false);
 
-      const ex1Correct = ex1Ans.trim() !== '' && Number(ex1Ans) === 12;
-      const ex2Correct = ex2Ans.trim() !== '' && Number(ex2Ans) === 120;
+      const num1 = Number(ex1Ans.trim());
+      const num2 = Number(ex2Ans.trim());
+
+      const ex1Correct = ex1Ans.trim() !== '' && !isNaN(num1) && num1 === 12;
+      const ex2Correct = ex2Ans.trim() !== '' && !isNaN(num2) && num2 === 120;
       const ex1Wrong = ex1Ans.trim() !== '' && !ex1Correct;
       const ex2Wrong = ex2Ans.trim() !== '' && !ex2Correct;
 
@@ -611,10 +606,7 @@
                 <svg viewBox="0 0 280 160" className="w-full max-w-[280px]" role="img" aria-label="習題 B 大尺寸示意圖，角 A 為鈍角">
                   <polygon points="35,130 90,65 245,130" fill="rgba(236,72,153,.10)" stroke="#ec4899" strokeWidth="2.5" strokeLinejoin="round" />
                   
-                  {/* Angle A Arc */}
                   <path d="M 72 86 A 25 25 0 0 0 115 75" fill="none" stroke="#ec4899" strokeWidth="2.5" />
-                  
-                  {/* Repositioned label clearly below angle A without overlapping side c */}
                   <text x="100" y="102" fontSize="13" fontWeight="700" fill="#db2777">A = ?</text>
                   
                   <text x="15" y="142" fontSize="13" fontWeight="700" fill="#334155">B</text>
