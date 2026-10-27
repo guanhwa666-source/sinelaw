@@ -65,6 +65,9 @@
       const answered = Boolean(bx && by && ax && ay);
       const correct = bx === 'a' && by === '0' && ax === 'b cos C' && ay === 'b sin C';
 
+      const bText = (bx !== '' && by !== '') ? ` (${bx}, ${by})` : '';
+      const aText = (ax !== '' && ay !== '') ? ` (${ax}, ${ay})` : '';
+
       const selectClass = 'rounded-lg border-2 border-slate-200 bg-white p-2 text-center transition focus:border-indigo-500';
 
       return (
@@ -72,7 +75,7 @@
           <div>
             <StepHeading number="1">將三角形放入坐標系</StepHeading>
             <p className="mb-4 leading-7 text-slate-600">
-              參考《泰宇 正餘弦定理》課本的推導方式，將 △ABC 的頂點 C 放在原點 (0, 0)，並將邊 BC（長度為 a）放在 x 軸上。
+              將 △ABC 的頂點 C 放在原點 (0, 0)，並將邊 BC（長度為 a）放在 x 軸上。
             </p>
             <div className="mb-5 rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
               <p className="mb-4 font-semibold text-indigo-800">根據右圖，選出點 A 和點 B 的坐標。</p>
@@ -118,8 +121,8 @@
               <circle cx="235" cy="175" r="5" fill={correct ? '#059669' : '#f43f5e'} />
               <circle cx="140" cy="55" r="5" fill={correct ? '#059669' : '#f43f5e'} />
               <text x="15" y="194" fontSize="11" fontWeight="700" fill="#334155">C (0, 0)</text>
-              <text x="222" y="195" fontSize="12" fontWeight="700" fill="#334155">B{correct ? ' (a, 0)' : ''}</text>
-              <text x="100" y="40" fontSize="11" fontWeight="700" fill="#334155">A{correct ? ' (b cos C, b sin C)' : ''}</text>
+              <text x="210" y="195" fontSize="12" fontWeight="700" fill="#334155">B{bText}</text>
+              <text x="75" y="40" fontSize="11" fontWeight="700" fill="#334155">A{aText}</text>
               <text x="137" y="165" fontSize="14" fontWeight="700" fill="#4f46e5">a</text>
               <text x="74" y="107" fontSize="14" fontWeight="700" fill="#4f46e5">b</text>
               <text x="190" y="107" fontSize="14" fontWeight="700" fill="#db2777">c</text>
@@ -137,7 +140,7 @@
       const [part2, setPart2] = useState('');
       const answered = Boolean(part1 && part2);
       const correct = part1 === 'b cos C' && part2 === 'b sin C';
-      const selectClass = 'min-w-[120px] rounded border-b-2 border-indigo-400 bg-indigo-50 px-2 py-2 text-center outline-none focus:bg-indigo-100';
+      const selectClass = 'min-w-[110px] rounded border-b-2 border-indigo-400 bg-indigo-50 px-2 py-1.5 text-center outline-none focus:bg-indigo-100 text-sm md:text-base';
 
       return (
         <div className="mx-auto max-w-5xl animate-fade-in">
@@ -145,20 +148,22 @@
           <p className="mb-6 text-lg leading-7 text-slate-600">
             已知 A = (b cos C, b sin C)，B = (a, 0)。利用兩點距離公式「距離² = (x₂ − x₁)² + (y₂ − y₁)²」，求邊長 c 的平方。
           </p>
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
               <div className="rounded-2xl border-2 border-indigo-100 bg-white p-6 text-center shadow-sm">
                 <p className="mb-5 font-semibold text-slate-700">將點 A 的坐標代入距離公式。</p>
-                <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-lg text-slate-800">
-                  <span>c² = (</span>
-                  <select aria-label="距離公式中的水平坐標" value={part1} onChange={e => setPart1(e.target.value)} className={selectClass}>
-                    <option value="">選擇</option><option value="a">a</option><option value="b cos C">b cos C</option><option value="b sin C">b sin C</option>
-                  </select>
-                  <span>− a)² + (</span>
-                  <select aria-label="距離公式中的垂直坐標" value={part2} onChange={e => setPart2(e.target.value)} className={selectClass}>
-                    <option value="">選擇</option><option value="a">a</option><option value="b cos C">b cos C</option><option value="b sin C">b sin C</option>
-                  </select>
-                  <span>− 0)²</span>
+                <div className="overflow-x-auto py-2">
+                  <div className="inline-flex whitespace-nowrap items-center justify-center gap-1.5 font-mono text-base md:text-lg text-slate-800">
+                    <span>c² = (</span>
+                    <select aria-label="距離公式中的水平坐標" value={part1} onChange={e => setPart1(e.target.value)} className={selectClass}>
+                      <option value="">選擇</option><option value="a">a</option><option value="b cos C">b cos C</option><option value="b sin C">b sin C</option>
+                    </select>
+                    <span>− a)² + (</span>
+                    <select aria-label="距離公式中的垂直坐標" value={part2} onChange={e => setPart2(e.target.value)} className={selectClass}>
+                      <option value="">選擇</option><option value="a">a</option><option value="b cos C">b cos C</option><option value="b sin C">b sin C</option>
+                    </select>
+                    <span>− 0)²</span>
+                  </div>
                 </div>
                 {answered && (correct
                   ? <SuccessMessage>正確！因此 c² = (b cos C − a)² + (b sin C)²。</SuccessMessage>
@@ -170,22 +175,17 @@
             </div>
             <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="pointer-events-none absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
-              <svg viewBox="0 0 320 220" className="relative z-10 w-full max-w-sm" role="img" aria-label="點 A 向 x 軸作垂線的示意圖">
+              <svg viewBox="0 0 320 220" className="relative z-10 w-full max-w-sm" role="img" aria-label="兩點 A 與 B 的坐標與距離示意圖">
                 <defs><marker id="arrow-step2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" /></marker></defs>
                 <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step2)" />
                 <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step2)" />
-                <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.05)" stroke="#c7d2fe" strokeWidth="2" strokeLinejoin="round" />
-                <line x1="140" y1="55" x2="140" y2="175" stroke="#6366f1" strokeWidth="2" strokeDasharray="5,4" />
-                <path d="M140 163 L152 163 L152 175" fill="none" stroke="#6366f1" strokeWidth="1.5" />
+                <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.05)" stroke="#c7d2fe" strokeWidth="1.5" strokeLinejoin="round" strokeDasharray="4,4" />
                 <line x1="140" y1="55" x2="235" y2="175" stroke="#ec4899" strokeWidth="3" />
                 <circle cx="45" cy="175" r="4" fill="#94a3b8" /><circle cx="235" cy="175" r="5" fill="#f43f5e" /><circle cx="140" cy="55" r="5" fill="#f43f5e" />
                 <text x="14" y="194" fontSize="10" fill="#64748b">C (0, 0)</text>
-                <text x="225" y="194" fontSize="11" fontWeight="700" fill="#334155">B (a, 0)</text>
-                <text x="101" y="40" fontSize="10" fontWeight="700" fill="#334155">A (b cos C, b sin C)</text>
-                <text x="78" y="113" fontSize="11" fontWeight="600" fill="#6366f1">b sin C</text>
-                <text x="79" y="190" fontSize="10" fill="#64748b">b cos C</text>
-                <text x="163" y="192" fontSize="10" fontWeight="700" fill="#4f46e5">a − b cos C</text>
-                <text x="190" y="105" fontSize="13" fontWeight="700" fill="#db2777">c</text>
+                <text x="215" y="194" fontSize="11" fontWeight="700" fill="#334155">B (a, 0)</text>
+                <text x="90" y="42" fontSize="10" fontWeight="700" fill="#334155">A (b cos C, b sin C)</text>
+                <text x="175" y="105" fontSize="13" fontWeight="700" fill="#db2777">c</text>
               </svg>
             </div>
           </div>
@@ -350,7 +350,6 @@
               <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-pink-500 opacity-30 blur-3xl"></div>
               <h1 className="relative z-10 mb-3 text-3xl font-extrabold tracking-tight md:text-4xl">餘弦定理互動探索</h1>
               <p className="relative z-10 text-base font-medium leading-7 text-slate-300 md:text-lg">跟著步驟，一步步推導並應用《泰宇 正餘弦定理》</p>
-              <p className="relative z-10 mt-2 text-sm text-slate-400">建議活動時間：8–10 分鐘</p>
             </header>
 
             <nav aria-label="活動步驟" className="flex overflow-x-auto border-b border-slate-200 bg-slate-50">
