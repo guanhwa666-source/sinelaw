@@ -27,7 +27,6 @@
       outline: 3px solid rgba(99, 102, 241, .35);
       outline-offset: 2px;
     }
-    /* Fraction display style */
     .fraction {
       display: inline-flex;
       flex-direction: column;
@@ -116,7 +115,7 @@
       );
     };
 
-    // Step 1: Fixed display logic so selected coordinates show at the selected point (red or green)
+    // Step 1: Added dashed perpendicular drop line from A to x-axis
     const Step1 = () => {
       const [bx, setBx] = useState('');
       const [by, setBy] = useState('');
@@ -183,7 +182,7 @@
                   <span>)</span>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-slate-500">提示：點 A 到原點 C 的距離是 b，而 CA 與正 x 軸的夾角是 C。</p>
+              <p className="mt-4 text-sm text-slate-500">提示：可透過 A 點向 x 軸作垂線，利用直角三角形的三角比看出 x 與 y 坐標。</p>
               {answered && (allCorrect
                 ? <SuccessMessage>完全正確！B = (a, 0)，A = (b cos C, b sin C)。</SuccessMessage>
                 : <HintMessage>⚠️ 注意右圖：紅點代表你選錯的坐標，它沒有落在正確的頂點上！</HintMessage>)}
@@ -196,6 +195,9 @@
               <defs><marker id="arrow-step1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" /></marker></defs>
               <line x1="20" y1="175" x2="295" y2="175" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
               <line x1="45" y1="200" x2="45" y2="18" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow-step1)" />
+              
+              {/* Perpendicular drop line from A to x-axis */}
+              <line x1="140" y1="55" x2="140" y2="175" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,4" opacity="0.6" />
               
               <polygon points="45,175 235,175 140,55" fill="rgba(79,70,229,.10)" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />
               
@@ -298,7 +300,7 @@
       );
     };
 
-    // Step 3: expand and simplify (Relaxed input validation)
+    // Step 3: expand and simplify
     const Step3 = () => {
       const [ans, setAns] = useState('');
       const cleanAns = ans.trim().toLowerCase();
@@ -454,17 +456,27 @@
       );
     };
 
-    // Step 5: Exercises with relaxed number validation
+    // Step 5: Exercises with side b question & square root helper button
     const Step5 = () => {
       const [ex1Ans, setEx1Ans] = useState('');
       const [ex2Ans, setEx2Ans] = useState('');
       const [showEx1Hint, setShowEx1Hint] = useState(false);
       const [showEx2Hint, setShowEx2Hint] = useState(false);
 
-      const num1 = Number(ex1Ans.trim());
+      // Helper to insert square root symbol into input A
+      const insertSqrt = () => {
+        setEx1Ans(prev => prev.includes('√') ? prev : '√' + prev);
+      };
+
+      // Validation logic for Exercise A: accepts 12, sqrt12, √12, 2sqrt3, 2√3
+      const checkEx1 = (val) => {
+        const clean = val.replace(/\s+/g, '').toLowerCase();
+        return clean === '12' || clean === 'sqrt12' || clean === '√12' || clean === '2sqrt3' || clean === '2√3';
+      };
+
       const num2 = Number(ex2Ans.trim());
 
-      const ex1Correct = ex1Ans.trim() !== '' && !isNaN(num1) && num1 === 12;
+      const ex1Correct = ex1Ans.trim() !== '' && checkEx1(ex1Ans);
       const ex2Correct = ex2Ans.trim() !== '' && !isNaN(num2) && num2 === 120;
       const ex1Wrong = ex1Ans.trim() !== '' && !ex1Correct;
       const ex2Wrong = ex2Ans.trim() !== '' && !ex2Correct;
@@ -477,7 +489,7 @@
             <div>
               <p className="mb-1 font-semibold text-slate-800">公式運用提醒</p>
               <div className="text-sm leading-7 flex flex-col gap-1">
-                <div>求邊長 b：<span className="font-mono bg-slate-100 px-2 py-0.5 rounded">b² = a² + c² − 2ac cos B</span>，求出 b² 後再開平方根。</div>
+                <div>求邊長 b：<span className="font-mono bg-slate-100 px-2 py-0.5 rounded">b² = a² + c² − 2ac cos B</span>，求出 b² 後再開根號得到 b。</div>
                 <div className="flex items-center gap-1">
                   <span>求角 A：</span>
                   <span className="font-mono bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
@@ -493,16 +505,16 @@
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Exercise A */}
+            {/* Exercise A: Changed to asking for side b with sqrt helper button */}
             <section className={`rounded-2xl border-2 p-5 transition-all md:p-6 ${ex1Correct ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white shadow-sm'}`} aria-labelledby="exercise-a-title">
               <h3 id="exercise-a-title" className="mb-4 flex items-center text-lg font-bold text-slate-800">
                 <span className="mr-3 flex h-7 w-7 items-center justify-center rounded-md bg-sky-500 text-sm text-white">A</span>
-                已知兩邊一夾角（SAS）
+                已知兩邊一夾角求第三邊（SAS）
               </h3>
               <p className="mb-4 border-l-4 border-sky-300 pl-3 text-sm leading-6 text-slate-600">
                 <span className="mb-1 block text-xs font-bold text-sky-700">課本動動筆 4</span>
-                在 △ABC 中，已知 a = 4、c = 2，且 ∠B = 60°。求 b² 的值。<br />
-                <span className="mt-1 inline-block text-slate-500">提示：cos 60° = 1/2。</span>
+                在 △ABC 中，已知 a = 4、c = 2，且 ∠B = 60°。求邊長 <strong>b</strong> 的長度。<br />
+                <span className="mt-1 inline-block text-slate-500">提示：先求出 b² = 12，再開根號化簡。</span>
               </p>
 
               <div className="mb-4">
@@ -517,8 +529,8 @@
                 ) : (
                   <div className="mb-5 rounded-xl border border-sky-100 bg-slate-50 p-4 font-mono text-sm leading-7 text-slate-600 animate-fade-in">
                     <p className="font-bold text-xs text-sky-700 mb-1 font-sans">解題步驟：</p>
-                    b² = a² + c² − 2ac cos B<br />
-                    b² = 4² + 2² − 2(4)(2)(1/2)
+                    b² = 4² + 2² − 2(4)(2) cos 60° = 16 + 4 − 8 = 12<br />
+                    b = √12 = 2√3
                     <button
                       type="button"
                       onClick={() => setShowEx1Hint(false)}
@@ -530,12 +542,20 @@
                 )}
               </div>
 
-              <div className="mb-2 flex flex-wrap items-center gap-3">
-                <label htmlFor="exercise-a-answer" className="text-lg font-bold text-slate-700">b² =</label>
-                <input id="exercise-a-answer" type="number" inputMode="decimal" value={ex1Ans} onChange={e => setEx1Ans(e.target.value)} className="w-28 rounded-lg border-2 border-slate-300 p-2 text-center font-bold text-slate-800 focus:border-sky-500" placeholder="答案" />
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <label htmlFor="exercise-a-answer" className="text-lg font-bold text-slate-700">b =</label>
+                <input id="exercise-a-answer" type="text" value={ex1Ans} onChange={e => setEx1Ans(e.target.value)} className="w-32 rounded-lg border-2 border-slate-300 p-2 text-center font-bold text-slate-800 focus:border-sky-500" placeholder="例如 √12 或 2√3" />
+                <button
+                  type="button"
+                  onClick={insertSqrt}
+                  className="rounded-lg bg-sky-100 px-3 py-2 text-sm font-bold text-sky-700 transition hover:bg-sky-200 border border-sky-200 shadow-sm"
+                  title="點擊插入根號符號"
+                >
+                  √ 根號
+                </button>
               </div>
-              {ex1Correct && <SuccessMessage>正確！b² = 12，所以 b = 2√3。</SuccessMessage>}
-              {ex1Wrong && <HintMessage>再算一次：16 + 4 − 2 × 4 × 2 × 1/2。注意最後一項的減號。</HintMessage>}
+              {ex1Correct && <SuccessMessage>正確！b = 2√3（或 √12）。</SuccessMessage>}
+              {ex1Wrong && <HintMessage>再想一想：先算出 b² = 12，開根號後可化簡為 2√3。</HintMessage>}
               
               <div className="mt-5 flex justify-center rounded-xl border border-slate-100 bg-slate-50 p-4">
                 <svg viewBox="0 0 220 145" className="w-full max-w-[260px]" role="img" aria-label="習題 A 三角形示意圖，角 B 為 60 度">
