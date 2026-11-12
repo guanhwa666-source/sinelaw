@@ -275,9 +275,6 @@
                   ? <SuccessMessage>正確！因此 c² = (b cos C − a)² + (b sin C)²。</SuccessMessage>
                   : <HintMessage>再想一想：x 座標要放在第一個平方項，y 座標要放在第二個平方項。</HintMessage>)}
               </div>
-              <div className="mt-5 rounded-xl bg-indigo-50 p-4 text-sm leading-6 text-indigo-900">
-                <strong>思考：</strong>為什麼第二個平方項可以寫成 (b sin C)²？因為點 B 的 y 座標是 0。
-              </div>
             </div>
             <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="pointer-events-none absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
@@ -299,42 +296,153 @@
       );
     };
 
-    // Step 3: Identity step
+    // Step 3: Stepwise expansion and simplification
+    const ChoiceQuestion = ({ index, question, hint, options, correct, wrongHints, success, onCorrect }) => {
+      const [picked, setPicked] = useState('');
+      const ok = picked === correct;
+      return (
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-fade-in md:p-6">
+          <p className="mb-2 flex items-start gap-3 font-bold text-slate-800">
+            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-pink-100 text-sm text-pink-700">{index}</span>
+            <span>{question}</span>
+          </p>
+          {hint && <p className="mb-4 ml-10 text-sm leading-6 text-slate-500">💡 {hint}</p>}
+          <div className="space-y-2 md:ml-10">
+            {options.map(o => (
+              <button
+                key={o.id}
+                type="button"
+                disabled={ok}
+                onClick={() => { setPicked(o.id); if (o.id === correct) onCorrect(); }}
+                className={`block w-full rounded-lg border-2 p-3 text-left font-mono text-sm transition md:text-base ${
+                  picked === o.id
+                    ? (o.id === correct ? 'border-emerald-400 bg-emerald-50 text-emerald-800' : 'border-rose-300 bg-rose-50 text-rose-800')
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
+                }`}
+              >
+                {o.text}
+              </button>
+            ))}
+          </div>
+          {ok && <SuccessMessage>{success}</SuccessMessage>}
+          {picked && !ok && <HintMessage>{wrongHints[picked] || '再檢查一次喔！'}</HintMessage>}
+        </div>
+      );
+    };
+
     const Step3 = () => {
+      const [done, setDone] = useState(0);
       const [ans, setAns] = useState('');
-      const cleanAns = ans.trim().toLowerCase();
-      const answered = cleanAns !== '';
-      const correct = cleanAns === '1' || cleanAns === '1.0';
+      const cleanAns = ans.trim();
+      const identityCorrect = cleanAns === '1' || cleanAns === '1.0';
+      const finish = (n) => () => setDone(d => Math.max(d, n));
 
       return (
         <div className="mx-auto max-w-4xl animate-fade-in">
           <StepHeading number="3">展開與化簡</StepHeading>
-          <p className="mb-6 text-lg leading-7 text-slate-600">接著將距離公式展開，並利用三角恆等式化簡。</p>
-          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-            <div className="mb-7 text-center font-mono">
-              <p className="mb-3 font-sans text-xs font-bold tracking-widest text-slate-400">初始方程式</p>
-              <p className="break-words text-lg md:text-xl">c² = (b cos C − a)² + (b sin C)²</p>
+          <p className="mb-6 text-lg leading-7 text-slate-600">
+            現在輪到你動手！依序完成下面 4 個小步驟，把距離公式整理成餘弦定理。
+          </p>
+
+          <div className="mb-6 rounded-2xl border border-indigo-100 bg-indigo-50 p-5 text-center font-mono">
+            <p className="mb-2 font-sans text-xs font-bold tracking-widest text-indigo-400">起點</p>
+            <p className="break-words text-lg text-indigo-900 md:text-xl">c² = (b cos C − a)² + (b sin C)²</p>
+          </div>
+
+          <ChoiceQuestion
+            index="①"
+            question="先展開 (b cos C − a)²，結果是？"
+            hint="公式：(x − y)² = x² − 2xy + y²，這裡 x = b cos C，y = a。"
+            correct="ok"
+            options={[
+              { id: 'w1', text: 'b² cos² C − a²' },
+              { id: 'ok', text: 'b² cos² C − 2ab cos C + a²' },
+              { id: 'w2', text: 'b² cos² C + a²' },
+            ]}
+            wrongHints={{
+              w1: '別忘了中間的交叉項：(x − y)² 不等於 x² − y²。',
+              w2: '中間還有 −2xy 這一項喔！',
+            }}
+            success="正確！(b cos C − a)² = b² cos² C − 2ab cos C + a²"
+            onCorrect={finish(1)}
+          />
+
+          {done >= 1 && (
+            <ChoiceQuestion
+              index="②"
+              question="再展開 (b sin C)²，結果是？"
+              hint="括號內每個因子都要平方：(xy)² = x²y²。"
+              correct="ok"
+              options={[
+                { id: 'w1', text: 'b sin² C' },
+                { id: 'ok', text: 'b² sin² C' },
+                { id: 'w2', text: 'b² sin C' },
+              ]}
+              wrongHints={{
+                w1: 'b 也在括號裡面，b 也要平方。',
+                w2: 'sin C 也要平方，變成 sin² C。',
+              }}
+              success="正確！(b sin C)² = b² sin² C"
+              onCorrect={finish(2)}
+            />
+          )}
+
+          {done >= 2 && (
+            <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 text-center font-mono shadow-sm animate-fade-in">
+              <p className="mb-2 font-sans text-xs font-bold tracking-widest text-slate-400">把 ① ② 合起來</p>
+              <p className="break-words text-base md:text-lg">c² = b² cos² C − 2ab cos C + a² + b² sin² C</p>
             </div>
-            <div className="relative mt-6 border-t border-slate-100 pt-7">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-xs font-bold tracking-widest text-indigo-500">展開與整理</div>
-              <div className="space-y-4 break-words text-center font-mono text-base text-slate-700 md:text-lg">
-                <p>c² = b² cos² C − 2ab cos C + a² + b² sin² C</p>
-                <p>c² = a² + b²(cos² C + sin² C) − 2ab cos C</p>
-              </div>
-            </div>
-            <div className="relative mt-8 border-t border-slate-100 pt-7">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-xs font-bold tracking-widest text-pink-500">套用三角恆等式</div>
-              <p className="mb-4 text-center text-sm leading-6 text-slate-600">基本三角恆等式告訴我們：cos² C + sin² C = 多少？</p>
+          )}
+
+          {done >= 2 && (
+            <ChoiceQuestion
+              index="③"
+              question="觀察上式，b² cos² C 與 b² sin² C 都有共同的 b²，把它們提出來後是？"
+              hint="先把 a² 和 −2ab cos C 放著，只處理含 b² 的兩項。"
+              correct="ok"
+              options={[
+                { id: 'w1', text: 'b(cos² C + sin² C)' },
+                { id: 'ok', text: 'b²(cos² C + sin² C)' },
+                { id: 'w2', text: 'b²(cos² C − sin² C)' },
+              ]}
+              wrongHints={{
+                w1: '共同的因子是 b²，不是 b。',
+                w2: '原式兩項之間是加號，提出 b² 後括號內仍是加號。',
+              }}
+              success="正確！c² = a² + b²(cos² C + sin² C) − 2ab cos C"
+              onCorrect={finish(3)}
+            />
+          )}
+
+          {done >= 3 && (
+            <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-fade-in md:p-6">
+              <p className="mb-4 flex items-start gap-3 font-bold text-slate-800">
+                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-pink-100 text-sm text-pink-700">④</span>
+                <span>最後，利用基本三角恆等式化簡括號：</span>
+              </p>
               <div className="flex flex-wrap items-center justify-center gap-3 text-xl">
                 <label htmlFor="identity-answer" className="font-mono text-indigo-900">cos² C + sin² C =</label>
-                <input id="identity-answer" type="text" value={ans} onChange={e => setAns(e.target.value)} disabled={correct} className={`w-20 rounded-lg border-2 p-2 text-center font-bold shadow-sm outline-none ${correct ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : 'border-pink-300 focus:border-pink-500'}`} placeholder="?" />
+                <input
+                  id="identity-answer"
+                  type="text"
+                  value={ans}
+                  onChange={e => {
+                    setAns(e.target.value);
+                    const v = e.target.value.trim();
+                    if (v === '1' || v === '1.0') finish(4)();
+                  }}
+                  disabled={identityCorrect}
+                  className={`w-20 rounded-lg border-2 p-2 text-center font-bold shadow-sm outline-none ${identityCorrect ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : 'border-pink-300 focus:border-pink-500'}`}
+                  placeholder="?"
+                />
               </div>
-              {answered && (correct
-                ? <SuccessMessage>正確！將 cos² C + sin² C = 1 代入，就能得到餘弦定理。</SuccessMessage>
+              {cleanAns !== '' && (identityCorrect
+                ? <SuccessMessage>正確！括號變成 1，b² × 1 = b²。</SuccessMessage>
                 : <HintMessage>再檢查一次：對任何角 C，都有 sin² C + cos² C = 1。</HintMessage>)}
             </div>
-          </div>
-          {correct && (
+          )}
+
+          {identityCorrect && (
             <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-7 text-center shadow-sm animate-fade-in">
               <h3 className="mb-3 text-xl font-bold text-emerald-800">推導完成！</h3>
               <p className="mb-5 leading-7 text-slate-700">我們得到餘弦定理：</p>
@@ -718,3 +826,4 @@
   </script>
 </body>
 </html>
+
